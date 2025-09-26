@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe Canvas - Qualidade do Leite</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* Fundo cinza claro para destacar o canvas */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            background-color: #ffffff; /* Fundo branco para a área de desenho */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="wireframeCanvas"></canvas>
+
+    <script>
+        window.onload = function() {
+            const canvas = document.getElementById('wireframeCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // --- Paleta de Cores do Wireframe ---
+            const C_FUNDO = '#ffffff';
+            const C_BORDA = '#cccccc';
+            const C_TEXTO_PRINCIPAL = '#333333';
+            const C_TEXTO_SECUNDARIO = '#888888';
+            const C_ELEMENTO_FUNDO = '#f5f5f5';
+
+            function setupCanvas() {
+                // Ajusta o tamanho do canvas para a janela, com uma margem
+                const padding = 40;
+                canvas.width = window.innerWidth - padding;
+                canvas.height = window.innerHeight - padding;
+                drawWireframe();
+            }
+
+            // --- Funções Auxiliares de Desenho ---
+
+            // Desenha um retângulo com bordas arredondadas e preenchimento opcional
+            function drawBox(x, y, width, height, label = '') {
+                ctx.strokeStyle = C_BORDA;
+                ctx.fillStyle = C_FUNDO;
+                ctx.beginPath();
+                ctx.roundRect(x, y, width, height, 8);
+                ctx.stroke();
+                ctx.fill();
+
+                if (label) {
+                    ctx.fillStyle = C_TEXTO_PRINCIPAL;
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText(label, x + 15, y + 25);
+                    
+                    ctx.strokeStyle = C_BORDA;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 15, y + 35);
+                    ctx.lineTo(x + width - 15, y + 35);
+                    ctx.stroke();
+                }
+            }
+
+            // Desenha um campo de input simulado
+            function drawInput(label, x, y, width, height = 40) {
+                ctx.fillStyle = C_TEXTO_SECUNDARIO;
+                ctx.font = '14px Arial';
+                ctx.fillText(label, x, y - 8);
+
+                ctx.strokeStyle = C_BORDA;
+                ctx.fillStyle = C_ELEMENTO_FUNDO;
+                ctx.beginPath();
+                ctx.roundRect(x, y, width, height, 4);
+                ctx.stroke();
+                ctx.fill();
+            }
+
+            // Desenha um botão simulado
+            function drawButton(label, x, y, width, height = 40) {
+                ctx.strokeStyle = C_BORDA;
+                ctx.fillStyle = C_ELEMENTO_FUNDO;
+                ctx.beginPath();
+                ctx.roundRect(x, y, width, height, 4);
+                ctx.stroke();
+                ctx.fill();
+
+                ctx.fillStyle = C_TEXTO_PRINCIPAL;
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(label, x + width / 2, y + height / 2);
+                ctx.textAlign = 'left'; // Reset
+                ctx.textBaseline = 'alphabetic'; // Reset
+            }
+            
+            // Desenha um dropdown simulado
+            function drawDropdown(label, x, y, width, height = 40) {
+                 drawInput(label, x, y, width, height);
+                 // Adiciona a seta do dropdown
+                 const arrowX = x + width - 20;
+                 const arrowY = y + height / 2;
+                 ctx.strokeStyle = C_TEXTO_SECUNDARIO;
+                 ctx.beginPath();
+                 ctx.moveTo(arrowX - 5, arrowY - 3);
+                 ctx.lineTo(arrowX, arrowY + 3);
+                 ctx.lineTo(arrowX + 5, arrowY - 3);
+                 ctx.stroke();
+            }
+            
+            // Desenha uma tabela simulada
+            function drawTable(x, y, width, headers, rowCount) {
+                const rowHeight = 40;
+                const headerHeight = 35;
+                
+                // Cabeçalho
+                ctx.fillStyle = C_ELEMENTO_FUNDO;
+                ctx.fillRect(x, y, width, headerHeight);
+                ctx.strokeStyle = C_BORDA;
+                ctx.strokeRect(x, y, width, headerHeight);
+
+                const colWidth = width / headers.length;
+                ctx.fillStyle = C_TEXTO_PRINCIPAL;
+                ctx.font = 'bold 13px Arial';
+                headers.forEach((header, i) => {
+                    ctx.fillText(header, x + (i * colWidth) + 10, y + 23);
+                });
+
+                // Linhas
+                for (let i = 0; i < rowCount; i++) {
+                    const rowY = y + headerHeight + (i * rowHeight);
+                    ctx.strokeRect(x, rowY, width, rowHeight);
+                    // Desenha X para simular conteúdo
+                    ctx.font = '14px Arial';
+                    ctx.fillStyle = C_TEXTO_SECUNDARIO;
+                    ctx.beginPath();
+                    ctx.moveTo(x + 10, rowY + 10);
+                    ctx.lineTo(x + width - 10, rowY + rowHeight - 10);
+                    ctx.moveTo(x + width - 10, rowY + 10);
+                    ctx.lineTo(x + 10, rowY + rowHeight - 10);
+                    ctx.stroke();
+                }
+            }
+
+
+            // --- Função Principal de Desenho ---
+            function drawWireframe() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const margin = 20;
+                const contentWidth = canvas.width - (margin * 2);
+                
+                // 1. Cabeçalho
+                ctx.fillStyle = C_TEXTO_PRINCIPAL;
+                ctx.font = 'bold 24px Arial';
+                ctx.fillText('Gestão de Qualidade do Leite', margin, margin + 20);
+                
+                // 2. Bloco de Seleção
+                const selectorY = margin + 50;
+                const selectorHeight = 120;
+                drawBox(margin, selectorY, contentWidth, selectorHeight, 'Seleção do Animal');
+                drawDropdown('Selecione o Animal', margin + 20, selectorY + 50, contentWidth - 40);
+
+                // 3. Layout de 2 Colunas
+                const layoutY = selectorY + selectorHeight + margin;
+                const formWidth = contentWidth * 0.33;
+                const tableWidth = contentWidth * 0.65;
+                const gap = contentWidth * 0.02;
+                const formAndLegendHeight = canvas.height - layoutY - margin;
+
+                // 3.1 Coluna da Esquerda (Formulário)
+                const formX = margin;
+                const formBoxHeight = 440; // Altura definida para o formulário
+                drawBox(formX, layoutY, formWidth, formBoxHeight, 'Adicionar Nova Análise');
+
+                let currentY = layoutY + 60;
+                const inputWidth = formWidth - 40;
+                const smallInputWidth = (inputWidth - 10) / 2;
+                
+                drawInput('Data Início Análise', formX + 20, currentY, smallInputWidth);
+                drawInput('Data Final Análise', formX + 20 + smallInputWidth + 10, currentY, smallInputWidth);
+                currentY += 65;
+                
+                drawInput('CBT (UFC/mL)', formX + 20, currentY, smallInputWidth);
+                drawInput('CCS (mil/mL)', formX + 20 + smallInputWidth + 10, currentY, smallInputWidth);
+                currentY += 65;
+                
+                drawInput('Gordura (%)', formX + 20, currentY, smallInputWidth);
+                drawInput('Proteína (%)', formX + 20 + smallInputWidth + 10, currentY, smallInputWidth);
+                currentY += 65;
+                
+                drawInput('Observações', formX + 20, currentY, inputWidth, 60);
+                currentY += 95;
+
+                drawButton('Salvar Análise', formX + 20, currentY, inputWidth);
+
+                // NOVO: Bloco de Legenda
+                const legendY = layoutY + formBoxHeight + margin;
+                const legendHeight = 100;
+                if (formAndLegendHeight > formBoxHeight + margin) { // Só desenha se houver espaço
+                    drawBox(formX, legendY, formWidth, legendHeight, 'Legenda');
+                    ctx.fillStyle = C_TEXTO_SECUNDARIO;
+                    ctx.font = '14px Arial';
+                    let legendTextY = legendY + 55;
+                    ctx.fillText('CBT: Contagem Bacteriana Total', formX + 20, legendTextY);
+                    legendTextY += 25;
+                    ctx.fillText('CCS: Contagem de Células Somáticas', formX + 20, legendTextY);
+                }
+
+
+                // 3.2 Coluna da Direita (Tabela)
+                const tableX = formX + formWidth + gap;
+                drawBox(tableX, layoutY, tableWidth, formAndLegendHeight, 'Histórico do Animal Selecionado');
+                
+                const tableHeaders = ['Início', 'Fim', 'CBT', 'CCS', 'Gordura', 'Proteína', 'Ações'];
+                drawTable(tableX + 15, layoutY + 50, tableWidth - 30, tableHeaders, 5);
+            }
+
+            // --- Event Listeners ---
+            window.addEventListener('resize', setupCanvas);
+            setupCanvas(); // Desenha pela primeira vez
+        };
+    </script>
+</body>
+</html>
+
+
